@@ -75,3 +75,25 @@ class Ball(GameObject):
         # Mengembalikan list bata yang hancur dan jumlah hitongan tabrakan
         return destroyed, hits
 
+# PowerUp / Skill Object
+class PowerUp(GameObject):
+    def __init__(self, canvas, x, y, skill_type):
+        self.skill = skill_type
+        self.speed = 5
+        # Menambahkan 'life' dengan warna merah
+        colors = {
+            'multi': '#9b59b6', # Ungu
+            'long': '#3498db',  # Biru
+            'large': '#2ecc71', # Hijau
+            'life': '#e74c3c'   # Merah (Nyawa Tambahan)
+        }
+        color = colors.get(skill_type, 'white')
+        size = 12
+        item = canvas.create_oval(x - size, y - size,
+                                  x + size, y + size,
+                                  fill=color, tags='powerup')
+        super(PowerUp, self).__init__(canvas, item)
+
+    def update(self):
+        self.move(0, self.speed)
+
