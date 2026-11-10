@@ -97,3 +97,44 @@ class PowerUp(GameObject):
     def update(self):
         self.move(0, self.speed)
 
+# Paddle Object
+class Paddle(GameObject):
+    def __init__(self, canvas, x, y):
+        self.default_width = 80
+        self.width = self.default_width
+        self.height = 10
+        self.ball = None
+        item = canvas.create_rectangle(x - self.width / 2,
+                                       y - self.height / 2,
+                                       x + self.width / 2,
+                                       y + self.height / 2,
+                                       fill='yellow')
+        super(Paddle, self).__init__(canvas, item)
+
+    def set_ball(self, ball):
+        self.ball = ball
+
+    def reset(self):
+        self.width = self.default_width
+        self.update_coords()
+
+    def grow(self):
+        if self.width < 200:
+            self.width += 40
+            self.update_coords()
+
+    def update_coords(self):
+        coords = self.get_position()
+        x = (coords[0] + coords[2]) / 2
+        y = (coords[1] + coords[3]) / 2
+        self.canvas.coords(self.item, x - self.width / 2, y - self.height / 2, 
+                           x + self.width / 2, y + self.height / 2)
+
+    def move(self, offset):
+        coords = self.get_position()
+        width = int(self.canvas['width'])
+        if coords[0] + offset >= 0 and coords[2] + offset <= width:
+            super(Paddle, self).move(offset, 0)
+            if self.ball is not None:
+                self.ball.move(offset, 0)
+
