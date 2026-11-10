@@ -17,3 +17,61 @@ class GameObject(object):
     def delete(self):
         self.canvas.delete(self.item)
 
+# Ball Object
+class Ball(GameObject):
+    def __init__(self, canvas, x, y):
+        self.radius = 10
+        self.direction = [random.choice([1, -1]), -1]
+        self.speed = 10
+        item = canvas.create_oval(x - self.radius, y - self.radius,
+                                  x + self.radius, y + self.radius,
+                                  fill='white')
+        super(Ball, self).__init__(canvas, item)
+
+    def grow(self):
+        if self.radius < 25:
+            self.radius += 5
+            coords = self.get_position()
+            x = (coords[0] + coords[2]) / 2
+            y = (coords[1] + coords[3]) / 2
+            self.canvas.coords(self.item, x - self.radius, y - self.radius, 
+                               x + self.radius, y + self.radius)
+
+    def update(self):
+        coords = self.get_position()
+        width = int(self.canvas['width'])
+        if coords[0] <= 0 or coords[2] >= width:
+            self.direction[0] *= -1
+        if coords[1] <= 0:
+            self.direction[1] *= -1
+        x = self.direction[0] * self.speed
+        y = self.direction[1] * self.speed
+        self.move(x, y)
+
+    def collide(self, game_objects):
+        coords = self.get_position()
+        x = (coords[0] + coords[2]) * 0.5
+        if len(game_objects) > 1:
+            self.direction[1] *= -1
+        elif len(game_objects) == 1:
+            game_object = game_objects[0]
+            coords_obj = game_object.get_position()
+            if x > coords_obj[2]:
+                self.direction[0] = 1
+            elif x < coords_obj[0]:
+                self.direction[0] = -1
+            else:
+                self.direction[1] *= -1
+
+        destroyed = []
+        hits = 0
+        for game_object in game_objects:
+            if isinstance(game_object, Brick):
+                hits += 1
+                # Jika bata hancur (hit() return True), masukkan ke list destroyed
+                if game_object.hit():
+                    destroyed.append(game_object)
+        
+        # Mengembalikan list bata yang hancur dan jumlah hitongan tabrakan
+        return destroyed, hits
+
